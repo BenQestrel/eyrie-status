@@ -1,31 +1,59 @@
-# Change these first
-owner: upptime # Your GitHub organization or username, where this repository lives
-repo: upptime # The name of this repository
+# Upptime configuration for the Qestrel Eyrie status page.
+# Lives in its own PUBLIC repository (e.g. BenQestrel/eyrie-status), created
+# from https://github.com/upptime/upptime ("Use this template"). GitHub
+# Actions on a public repository are free, so the five-minute checks and the
+# published history cost nothing.
+
+owner: BenQestrel
+repo: eyrie-status
 
 sites:
-  - name: Google
-    url: https://www.google.com
-  - name: Wikipedia
-    url: https://en.wikipedia.org
-  - name: Hacker News
-    url: https://news.ycombinator.com
-  - name: Secret Site
-    url: $SECRET_SITE
+  - name: Qestrel Eyrie
+    url: https://eyrie.qestrel.co.uk/health
+    # /health is the ALB target health check: it touches the database and
+    # returns 200 only when the backend and Postgres are both up, so a green
+    # tick here means the service is working, not just that DNS resolves.
+    expectedStatusCodes:
+      - 200
+    maxResponseTime: 5000
+  - name: Qestrel Eyrie sign-in page
+    url: https://eyrie.qestrel.co.uk/login
+    expectedStatusCodes:
+      - 200
+      - 302
+      - 307
 
 status-website:
-  # Add your custom domain name, or remove the `cname` line if you don't have a domain
-  # Uncomment the `baseUrl` line if you don't have a custom domain and add your repo name there
-  cname: demo.upptime.js.org
-  # baseUrl: /your-repo-name
-  logoUrl: https://raw.githubusercontent.com/upptime/upptime.js.org/master/static/img/icon.svg
-  name: Upptime
-  introTitle: "**Upptime** is the open-source uptime monitor and status page, powered entirely by GitHub."
-  introMessage: This is a sample status page which uses **real-time** data from our [GitHub repository](https://github.com/upptime/upptime). No server required — just GitHub Actions, Issues, and Pages. [**Get your own for free**](https://github.com/upptime/upptime)
+  cname: status.eyrie.qestrel.co.uk
+  name: Qestrel Eyrie status
+  introTitle: "Live status and uptime history for the Qestrel Eyrie platform."
+  introMessage: "Checks run every five minutes from GitHub Actions. Planned maintenance is announced by email to organisation owners at least two working days ahead (Business Continuity Plan §2)."
   navbar:
     - title: Status
       href: /
-    - title: GitHub
-      href: https://github.com/$OWNER/$REPO
+    - title: Qestrel
+      href: https://qestrel.co.uk
+  theme: light
 
-# Upptime also supports notifications, assigning issues, and more
-# See https://upptime.js.org/docs/configuration
+# Keep every workflow; the default schedules are: uptime every 5 min,
+# response time every 6 h, summary and graphs daily, site rebuild on change.
+workflowSchedule:
+  uptime: "*/5 * * * *"
+  responseTime: "0 */6 * * *"
+  staticSite: "0 1 * * *"
+  summary: "0 0 * * *"
+  graphs: "0 0 * * *"
+
+# Opens a GitHub issue in the status repo while a site is down and closes it
+# on recovery; the issue history is the incident log the page shows.
+# Assign to the founder so a GitHub notification lands as well.
+assignees:
+  - BenQestrel
+
+# Do not create a commit for every check (keeps the repo history readable).
+commitMessages:
+  readmeContent: ":pencil: Update summary"
+  summaryJson: ":card_file_box: Update summary.json"
+  statusChange: "$EMOJI $SITE_NAME is $STATUS ($RESPONSE_CODE in $RESPONSE_TIME ms)"
+  graphsUpdate: ":bento: Update graphs"
+  siteBuild: ":rocket: Build and deploy status site"
